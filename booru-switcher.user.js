@@ -66,7 +66,7 @@ function initUI() {
 }
 
 if ($('#image_target')
-  || window.location.pathname.startsWith('/forums')
+  || window.location.pathname.match(/^\/forums\/\w+\/topics/)
   || window.location.pathname.startsWith('/images/')) {
   return;
 }
