@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.0.0
+// @version      1.0.1
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -48,19 +48,11 @@ function initUI() {
     if (window.location.host.match(host)) continue;
     const anchor = document.createElement('a');
     anchor.classList.add('header__link');
-    anchor.href = '#';
-    anchor.dataset.host = host;
+    anchor.href = window.location.href.replace(window.location.host, host);
     anchor.innerText = name;
 
     nav.append(anchor);
   }
-
-  nav.addEventListener('click', e => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (!e.target.matches('a')) return;
-    window.location.href = window.location.href.replace(window.location.host, e.target.dataset.host);
-  });
 
   headerRight.insertAdjacentElement('beforebegin', menuButton);
 }
