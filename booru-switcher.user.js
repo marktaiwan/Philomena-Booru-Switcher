@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.0.2
+// @version      1.0.3
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -86,7 +86,7 @@ function initUI() {
 
 if ($('#image_target')
   || window.location.pathname.match(/^\/forums\/\w+\/topics/)
-  || window.location.pathname.startsWith('/images/')) {
+  || window.location.pathname.match(/\/images\/\d+/)) {
   return;
 }
 
