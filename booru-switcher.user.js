@@ -147,9 +147,8 @@ function handleResponseError(response) {
 }
 
 function fetchImageHash(id) {
-  const {protocol, host} = window.location;
   const imageApiEndPoint = '/api/v1/json/images/';
-  const url = protocol + '//' + host + imageApiEndPoint + id;
+  const url = window.location.origin + imageApiEndPoint + id;
 
   return window.fetch(url)
     .then(handleResponseError)
