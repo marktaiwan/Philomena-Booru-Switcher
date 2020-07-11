@@ -35,9 +35,7 @@ function getQueryVariables() {
   const arr = window.location.search
     .substring(1)
     .split('&')
-    .map(string => {
-      return [key, val] = string.split('=');
-    });
+    .map(string => string.split('='));
 
   const dict = {};
   for (const list of arr) {
