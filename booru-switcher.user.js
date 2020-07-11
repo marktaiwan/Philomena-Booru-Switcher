@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.0
+// @version      1.1.1
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -69,7 +69,7 @@ function initSearchUI() {
     const anchor = e.target;
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
-    const imageId = getImageId();
+    const imageId = getCurrentImageId();
     const origText = anchor.innerText;
 
     try {
@@ -138,8 +138,14 @@ function createMenuItem(text, booru) {
   return anchor;
 }
 
-function getImageId() {
-  return $('#image_target').closest('.image-show-container').dataset.imageId;
+function getCurrentImageId() {
+  const regex = new RegExp(`(?:${window.location.origin})/(?:images/)?(?<domID>\\d+)(?:\\?.*|/|\\.html)?`, 'i');
+  const result = regex.exec(window.location.href);
+  if (result) {
+    return result.groups.domID;
+  } else {
+    throw new Error('Unable to determin current image id.');
+  }
 }
 
 function handleResponseError(response) {
@@ -216,7 +222,7 @@ function makeCrossSiteRequest(url) {
   });
 }
 
-if ($('#image_target')) {
+if ($('#image_target') || $('#thumbnails-not-yet-generated')) {
   initSearchUI();
 } else if (!window.location.pathname.match(/^\/forums\/\w+\/topics/)) {
   initSwitcherUI();
