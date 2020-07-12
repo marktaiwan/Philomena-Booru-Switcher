@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.3
+// @version      1.1.4
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -71,7 +71,10 @@ function initSearchUI() {
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
     const origText = anchor.innerText;
-    const fullImageURL = JSON.parse($('#image_target').dataset.uris).full;
+    const fullImageURL = makeAbsolute(
+      JSON.parse($('#image_target').dataset.uris).full,
+      window.location.origin
+    );
 
     try {
       anchor.innerText = 'Searching...';
@@ -176,7 +179,10 @@ function fetchImageHash(id, fallback) {
         return {hash, orig_hash};
       });
   } else {
-    const fullImageURL = JSON.parse($('#image_target').dataset.uris).full;
+    const fullImageURL = makeAbsolute(
+      JSON.parse($('#image_target').dataset.uris).full,
+      window.location.origin
+    );
     return fetch(fullImageURL)
       .then(handleResponseError)
       .then(response => response.arrayBuffer())
@@ -278,6 +284,10 @@ function makeCrossSiteRequest(url, method = 'GET') {
       onerror: resp => resolve({ok: false, url: resp.finalUrl, ...resp}),
     });
   });
+}
+
+function makeAbsolute(path, domain) {
+  path.match(/^(?:https?:)?\/\//) ? path : domain + path;
 }
 
 if ($('#image_target') || $('#thumbnails-not-yet-generated')) {
