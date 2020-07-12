@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.1
+// @version      1.1.2
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -67,6 +67,7 @@ function initSearchUI() {
     e.stopPropagation();
 
     const anchor = e.target;
+    const hashFallback = e.ctrlKey;
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
     const imageId = getCurrentImageId();
@@ -74,7 +75,7 @@ function initSearchUI() {
 
     try {
       anchor.innerText = 'Searching...';
-      const hashes = await fetchImageHash(imageId);
+      const hashes = await fetchImageHash(imageId, hashFallback);
       const id = await searchByHash(host, hashes);
 
       if (id) {
@@ -86,7 +87,7 @@ function initSearchUI() {
         anchor.innerText = 'Not on ' + name;
       }
     } catch (err) {
-      console.error(err.message);
+      console.error(err);
       anchor.innerText = origText;
     }
   });
@@ -152,17 +153,41 @@ function handleResponseError(response) {
   return (response.ok) ? response : Promise.reject('Unable to fetch from: ' + response.url);
 }
 
-function fetchImageHash(id) {
+function fetchImageHash(id, fallback) {
   const imageApiEndPoint = '/api/v1/json/images/';
   const url = window.location.origin + imageApiEndPoint + id;
 
-  return window.fetch(url)
-    .then(handleResponseError)
-    .then(response => response.json())
-    .then(json => {
-      const {sha512_hash: hash, orig_sha512_hash: orig_hash} = json.image;
-      return {hash, orig_hash};
-    });
+  if (!fallback) {
+    return window.fetch(url)
+      .then(handleResponseError)
+      .then(response => response.json())
+      .then(json => {
+        const {sha512_hash: hash, orig_sha512_hash: orig_hash} = json.image;
+        return {hash, orig_hash};
+      });
+  } else {
+    const fullImageURL = JSON.parse($('#image_target').dataset.uris).full;
+    return fetch(fullImageURL)
+      .then(handleResponseError)
+      .then(response => response.arrayBuffer())
+      .then(buffer => window.crypto.subtle.digest('SHA-512', buffer))
+      .then(hashBuffer => {
+
+        /*
+         *  Transform the ArrayBuffer into hex string
+         *  Code taken from: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest#Examples
+         */
+        // convert buffer to byte array
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        // convert bytes to hex string
+        const hashHex = hashArray
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+
+        return hashHex;
+      })
+      .then(hash => ({hash: hash, orig_hash: hash}));
+  }
 }
 
 function searchByHash(host, hashes) {
