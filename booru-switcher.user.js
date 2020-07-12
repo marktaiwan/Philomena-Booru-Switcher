@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.4
+// @version      1.1.5
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -287,7 +287,7 @@ function makeCrossSiteRequest(url, method = 'GET') {
 }
 
 function makeAbsolute(path, domain) {
-  path.match(/^(?:https?:)?\/\//) ? path : domain + path;
+  return path.match(/^(?:https?:)?\/\//) ? path : domain + path;
 }
 
 if ($('#image_target') || $('#thumbnails-not-yet-generated')) {
