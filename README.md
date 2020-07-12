@@ -14,4 +14,4 @@ There's a bug where the file hash returned by the site's API doesn't match the a
 
 If such an image was downloaded from _Site A_ then uploaded to _Site B_. Trying to search for the image from _Site A_ would find no result. As a workaround, you can `ctrl + click` the link again to force the script to download the full image and compute the hash client side.
 
-This will let you search on _Site A_ for images that had been uploaded to _Site B_. Unfortunately, there's no method for the inverse, i.e. find the source image on _Site A_ from _Site B_.
+This let you search on _Site A_ for images that had been uploaded to _Site B_. However, it won't work for the inverse, i.e. find the source image on _Site A_ from _Site B_. So, when client-side hashing fails to yield result, the script uses  Philomena's reverse image search function as the final fallback.

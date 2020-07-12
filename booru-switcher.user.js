@@ -67,16 +67,26 @@ function initSearchUI() {
     e.stopPropagation();
 
     const anchor = e.target;
-    const hashFallback = e.ctrlKey;
+    const useFallbacks = e.ctrlKey;
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
-    const imageId = getCurrentImageId();
     const origText = anchor.innerText;
+    const fullImageURL = JSON.parse($('#image_target').dataset.uris).full;
 
     try {
       anchor.innerText = 'Searching...';
-      const hashes = await fetchImageHash(imageId, hashFallback);
-      const id = await searchByHash(host, hashes);
+
+      /*
+       *  Use reverse image serch as additional level of fallback if client-side hashing
+       *  failed to yeild result. This takes the least precedence due to its inaccuracies.
+       *
+       *  To minimize latency, initiate client-side hashing and reverse search in parallel.
+       */
+      const imageSearch = (useFallbacks)
+        ? searchByImage(fullImageURL, host)
+        : null;
+      const hashSearch = searchByHash(host, useFallbacks);
+      const id = await hashSearch || await imageSearch;
 
       if (id) {
         const link = `https://${host}/images/${id}`;
@@ -190,7 +200,25 @@ function fetchImageHash(id, fallback) {
   }
 }
 
-function searchByHash(host, hashes) {
+function searchByImage(imageUrl, host) {
+  const apiEndPoint = '/api/v1/json/search/reverse';
+  const url = 'https://' + host + apiEndPoint + '?url=' + imageUrl;
+
+  return makeCrossSiteRequest(url, 'POST')
+    .then(handleResponseError)
+    .then(resp => resp.response)
+    .then(json => {
+      if (json.total) {
+        const {images} = json;
+        images.filter(img => (img.duplicate_of === null));
+        return (images.length > 0) ? images[0].id : null;
+      } else {
+        return null;
+      }
+    });
+}
+
+function searchByHash(host, hashFallback) {
 
   const encodeSearch = (hashes) => {
 
@@ -213,30 +241,35 @@ function searchByHash(host, hashes) {
     return tokens.map(token => window.encodeURIComponent(token)).join('+');
   };
 
-  const searchApiEndPoint = '/api/v1/json/search/images';
-  const searchTerm = encodeSearch(hashes);
-  const dict = {
-    q: searchTerm,
-    filter_id: '56027',   // Use the 'Everything' filter to get unfiltered results
-  };
+  const imageId = getCurrentImageId();
 
-  const query = Object.entries(dict)
-    .map(arr => arr.join('='))
-    .join('&');
+  return fetchImageHash(imageId, hashFallback)
+    .then(encodeSearch)
+    .then(searchTerm => {
+      const dict = {
+        q: searchTerm,
+        filter_id: '56027',   // Use the 'Everything' filter to get unfiltered results
+      };
+      const query = Object.entries(dict)
+        .map(arr => arr.join('='))
+        .join('&');
 
-  const url = 'https://' + host + searchApiEndPoint + '?' + query;
+      const searchApiEndPoint = '/api/v1/json/search/images';
+      const url = 'https://' + host + searchApiEndPoint + '?' + query;
 
-  return makeCrossSiteRequest(url)
+      return url;
+    })
+    .then(makeCrossSiteRequest)
     .then(handleResponseError)
     .then(resp => resp.response)
     .then(json => (json.total > 0) ? json.images[0].id : null);
 }
 
-function makeCrossSiteRequest(url) {
+function makeCrossSiteRequest(url, method = 'GET') {
   return new Promise((resolve) => {
     GM_xmlhttpRequest({
       url: url,
-      method: 'GET',
+      method,
       headers: {
         'User-Agent': navigator.userAgent
       },
