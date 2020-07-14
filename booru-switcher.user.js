@@ -16,6 +16,7 @@
 // @connect      ponybooru.org
 // @connect      ponerpics.org
 // @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
 // @inject-into  content
 // @noframes
 // ==/UserScript==
@@ -315,7 +316,7 @@ function searchByHash(host, hashFallback) {
     ];
     log(hashes);
 
-    return tokens.map(token => window.encodeURIComponent(token)).join('+');
+    return tokens.map(token => unsafeWindow.encodeURIComponent(token)).join('+');
   };
 
   const imageId = getCurrentImageId();
