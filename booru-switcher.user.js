@@ -77,7 +77,7 @@ function initSearchUI() {
     );
 
     try {
-      anchor.innerText = 'Searching...';
+      updateMessage('Searching...', host);
 
       /*
        *  Use reverse image serch as additional level of fallback if client-side hashing
@@ -94,14 +94,14 @@ function initSearchUI() {
       if (id) {
         const link = `https://${host}/images/${id}`;
 
-        anchor.innerText = 'Redirecting...';
+        updateMessage('Redirecting...', host);
         window.location.href = link;
       } else {
-        anchor.innerText = 'Not on ' + name;
+        updateMessage('Not on ' + name, host);
       }
     } catch (err) {
       console.error(err);
-      anchor.innerText = origText;
+      updateMessage(origText, host);
     }
   });
 }
@@ -146,6 +146,7 @@ function createMenuItem(text, booru) {
   const {name, host} = booru;
   const anchor = document.createElement('a');
   anchor.classList.add('header__link');
+  anchor.classList.add(`${SCRIPT_ID}_link`);
   anchor.dataset.name = name;
   anchor.dataset.host = host;
   anchor.innerText = text;
@@ -248,6 +249,7 @@ function searchByHash(host, hashFallback) {
   };
 
   const imageId = getCurrentImageId();
+  if (hashFallback) updateMessage('Searching... [hash]', host);
 
   return fetchImageHash(imageId, hashFallback)
     .then(encodeSearch)
@@ -288,6 +290,11 @@ function makeCrossSiteRequest(url, method = 'GET') {
 
 function makeAbsolute(path, domain) {
   return path.match(/^(?:https?:)?\/\//) ? path : domain + path;
+}
+
+function updateMessage(msg, host) {
+  const anchor = $(`.${SCRIPT_ID}_link[data-host="${host}"]`);
+  anchor.innerText = msg;
 }
 
 if ($('#image_target') || $('#thumbnails-not-yet-generated')) {
