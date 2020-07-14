@@ -33,6 +33,10 @@ function $(selector, parent = document) {
   return parent.querySelector(selector);
 }
 
+function $$(selector, parent = document) {
+  return parent.querySelectorAll(selector);
+}
+
 function getQueryVariables() {
   const search = window.location.search;
   if (search === '') return {};
@@ -215,13 +219,68 @@ function searchByImage(imageUrl, host) {
     .then(handleResponseError)
     .then(resp => resp.response)
     .then(json => {
-      if (json.total) {
-        const {images} = json;
-        images.filter(img => (img.duplicate_of === null));
-        return (images.length > 0) ? images[0].id : null;
-      } else {
-        return null;
-      }
+      const images = json.images
+        .filter(img => (img.duplicate_of === null || img.deletion_reason === null));
+
+      updateMessage('Searching... [image]', host);
+
+      if (images.length <= 1) return (images.length === 1) ? images[0] : null;
+
+      /*
+       *  There are more than one results.
+       *  This is where things gets complicated.
+       */
+      const jaccardIndex = (set1, set2) => {
+        const intersect = set1.filter(tag => set2.includes(tag));
+        return intersect.length / (set1.length + set2.length - intersect.length);
+      };
+
+      // get current image data
+      const container = $('.image-show-container');
+      const sourceImage = {
+        width: Number(container.dataset.width, 10),
+        height: Number(container.dataset.height, 10),
+        mime_type: container.dataset.mimeType,
+        aspect_ratio: Number(container.dataset.width, 10) / Number(container.dataset.height, 10),
+        tags: [...$$('.tag-list [data-tag-name]')].map(ele => ele.dataset.tagName),
+      };
+
+      // calculate image similarity and assign a score
+      const weights = {
+        mime_type: 2,
+        aspect_ratio: 4,
+        resolution: 1,
+        tags: 3,
+      };
+      const weightSum = Object.values(weights).reduce((sum, val) => sum += val);
+
+      images.forEach(image => {
+        const attributes = {
+          mime_type: (image.mime_type == sourceImage.mime_type) ? 1 : 0,
+          aspect_ratio: 1 - Math.tanh(Math.abs(sourceImage.aspect_ratio - image.aspect_ratio)),
+          resolution: 1 - Math.tanh(
+            Math.abs(
+              (sourceImage.width * sourceImage.height) - (image.width * image.height)
+            ) * 1e-3
+          ),
+          tags: jaccardIndex(sourceImage.tags, image.tags),
+        };
+        const score = Object
+          .entries(weights)
+          .reduce((sum, arr) => {
+            const [attrName, weight] = arr;
+            const attrScore = attributes[attrName] * (weight / weightSum);
+            return sum + attrScore;
+          } , 0);
+
+        image.simScore = score;
+      });
+
+      const bestMatch = images.reduce(
+        (bestMatch, current) => (bestMatch.simScore > current.simScore) ? bestMatch : current
+      );
+      return bestMatch.id;
+
     });
 }
 
