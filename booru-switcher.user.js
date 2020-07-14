@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.5
+// @version      1.1.6
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
