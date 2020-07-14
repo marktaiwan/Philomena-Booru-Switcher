@@ -28,6 +28,7 @@ const boorus = [
   {name: 'Derpibooru', host: 'derpibooru.org'},
   {name: 'Trixiebooru', host: 'trixiebooru.org'},
 ];
+const DEBUG = false;
 
 function $(selector, parent = document) {
   return parent.querySelector(selector);
@@ -176,6 +177,7 @@ function fetchImageHash(id, fallback) {
   const url = window.location.origin + imageApiEndPoint + id;
 
   if (!fallback) {
+    log('get hash by API');
     return window.fetch(url)
       .then(handleResponseError)
       .then(response => response.json())
@@ -184,6 +186,7 @@ function fetchImageHash(id, fallback) {
         return {hash, orig_hash};
       });
   } else {
+    log('get hash by download');
     const fullImageURL = makeAbsolute(
       JSON.parse($('#image_target').dataset.uris).full,
       window.location.origin
@@ -223,6 +226,9 @@ function searchByImage(imageUrl, host) {
         .filter(img => (img.duplicate_of === null || img.deletion_reason === null));
 
       updateMessage('Searching... [image]', host);
+      log('searchByImage');
+      log('request url:' + url);
+      log('response count: ' + images.length);
 
       if (images.length <= 1) return (images.length === 1) ? images[0] : null;
 
@@ -230,6 +236,7 @@ function searchByImage(imageUrl, host) {
        *  There are more than one results.
        *  This is where things gets complicated.
        */
+      log('multiple reverse search results');
       const jaccardIndex = (set1, set2) => {
         const intersect = set1.filter(tag => set2.includes(tag));
         return intersect.length / (set1.length + set2.length - intersect.length);
@@ -244,6 +251,7 @@ function searchByImage(imageUrl, host) {
         aspect_ratio: Number(container.dataset.width, 10) / Number(container.dataset.height, 10),
         tags: [...$$('.tag-list [data-tag-name]')].map(ele => ele.dataset.tagName),
       };
+      log({sourceImage});
 
       // calculate image similarity and assign a score
       const weights = {
@@ -273,12 +281,14 @@ function searchByImage(imageUrl, host) {
             return sum + attrScore;
           } , 0);
 
+        log({id: image.id, simScore: score, image, attributes});
         image.simScore = score;
       });
 
       const bestMatch = images.reduce(
         (bestMatch, current) => (bestMatch.simScore > current.simScore) ? bestMatch : current
       );
+      log({bestMatch});
       return bestMatch.id;
 
     });
@@ -303,6 +313,7 @@ function searchByHash(host, hashFallback) {
       tokenOr,
       'sha512_hash:' + orig_hash,
     ];
+    log(hashes);
 
     return tokens.map(token => window.encodeURIComponent(token)).join('+');
   };
@@ -324,12 +335,17 @@ function searchByHash(host, hashFallback) {
       const searchApiEndPoint = '/api/v1/json/search/images';
       const url = 'https://' + host + searchApiEndPoint + '?' + query;
 
+      log('begin search by hash');
       return url;
     })
     .then(makeCrossSiteRequest)
     .then(handleResponseError)
     .then(resp => resp.response)
-    .then(json => (json.total > 0) ? json.images[0].id : null);
+    .then(json => (json.total > 0) ? json.images[0].id : null)
+    .then(id => {
+      if (id === null) log('no result for hash search');
+      return id;
+    });
 }
 
 function makeCrossSiteRequest(url, method = 'GET') {
@@ -354,6 +370,10 @@ function makeAbsolute(path, domain) {
 function updateMessage(msg, host) {
   const anchor = $(`.${SCRIPT_ID}_link[data-host="${host}"]`);
   anchor.innerText = msg;
+}
+
+function log(obj) {
+  if (DEBUG) console.log(obj);
 }
 
 if ($('#image_target') || $('#thumbnails-not-yet-generated')) {
