@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.6
+// @version      1.1.7
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -231,7 +231,7 @@ function searchByImage(imageUrl, host) {
       log('request url:' + url);
       log('response count: ' + images.length);
 
-      if (images.length <= 1) return (images.length === 1) ? images[0] : null;
+      if (images.length <= 1) return (images.length === 1) ? images[0].id : null;
 
       /*
        *  There are more than one results.
