@@ -77,10 +77,9 @@ function initSearchUI() {
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
     const origText = anchor.innerText;
-    const fullImageURL = makeAbsolute(
-      JSON.parse($('#image_target').dataset.uris).full,
-      window.location.origin
-    );
+    const imageTarget = $('#image_target');
+    const uris = JSON.parse(imageTarget.dataset.uris);
+    const fullImageURL = makeAbsolute(uris.full, window.location.origin);
 
     try {
       updateMessage('Searching...', host);
@@ -188,11 +187,17 @@ function fetchImageHash(id, fallback) {
       });
   } else {
     log('get hash by download');
-    const fullImageURL = makeAbsolute(
-      JSON.parse($('#image_target').dataset.uris).full,
-      window.location.origin
-    );
-    return fetch(fullImageURL)
+    const imageTarget = $('#image_target')
+    const imageContainer = imageTarget.closest('.image-show-container');
+    const mimeType = imageTarget.dataset.mimeType || imageContainer.dataset.mimeType;
+    const uris = JSON.parse(imageTarget.dataset.uris);
+
+    // special case for svg uploads
+    const fullImageURL = (mimeType !== 'image/svg+xml')
+      ? uris.full
+      : uris.full.replace('/view/', /download/).replace(/\.\w+$/, '.svg');
+
+    return fetch(makeAbsolute(fullImageURL, window.location.origin))
       .then(handleResponseError)
       .then(response => response.arrayBuffer())
       .then(buffer => window.crypto.subtle.digest('SHA-512', buffer))
@@ -244,11 +249,12 @@ function searchByImage(imageUrl, host) {
       };
 
       // get current image data
-      const container = $('.image-show-container');
+      const imageTarget = $('#image_target');
+      const container = imageTarget.closest('.image-show-container');
       const sourceImage = {
         width: Number(container.dataset.width, 10),
         height: Number(container.dataset.height, 10),
-        mime_type: container.dataset.mimeType,
+        mime_type: imageTarget.dataset.mimeType || container.dataset.mimeType,
         aspect_ratio: Number(container.dataset.width, 10) / Number(container.dataset.height, 10),
         tags: [...$$('.tag-list [data-tag-name]')].map(ele => ele.dataset.tagName),
       };
