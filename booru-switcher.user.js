@@ -23,6 +23,7 @@
 // @noframes
 // ==/UserScript==
 (function () {
+'use strict';
 
 const SCRIPT_ID = 'booru_switcher';
 const boorus = [
