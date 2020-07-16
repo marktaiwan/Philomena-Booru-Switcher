@@ -11,10 +11,12 @@
 // @match        *://*.trixiebooru.org/*
 // @match        *://*.ponybooru.org/*
 // @match        *://*.ponerpics.org/*
+// @match        *://*.ponerpics.com/*
 // @connect      derpibooru.org
 // @connect      trixiebooru.org
 // @connect      ponybooru.org
 // @connect      ponerpics.org
+// @connect      ponerpics.com
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @inject-into  content
