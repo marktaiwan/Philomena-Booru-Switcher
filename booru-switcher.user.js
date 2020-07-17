@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.9
+// @version      1.1.10
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -79,7 +79,6 @@ function initSearchUI() {
     const useFallbacks = e.ctrlKey;
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
-    const origText = anchor.innerText;
     const imageTarget = $('#image_target');
     const uris = JSON.parse(imageTarget.dataset.uris);
     const fullImageURL = makeAbsolute(uris.full, window.location.origin);
@@ -94,9 +93,9 @@ function initSearchUI() {
        *  To minimize latency, initiate client-side hashing and reverse search in parallel.
        */
       const imageSearch = (useFallbacks)
-        ? searchByImage(fullImageURL, host)
+        ? searchByImage(fullImageURL, host).catch(resposneError(host))
         : null;
-      const hashSearch = searchByHash(host, useFallbacks);
+      const hashSearch = searchByHash(host, useFallbacks).catch(resposneError(host));
       const id = await hashSearch || await imageSearch;
 
       if (id) {
@@ -109,7 +108,7 @@ function initSearchUI() {
       }
     } catch (err) {
       console.error(err);
-      updateMessage(origText, host);
+      updateMessage('An error occurred', host);
     }
   });
 }
@@ -172,7 +171,19 @@ function getCurrentImageId() {
 }
 
 function handleResponseError(response) {
-  return (response.ok) ? response : Promise.reject('Unable to fetch from: ' + response.url);
+  if (response.ok) {
+    return response;
+  } else {
+    console.log(response);
+    return Promise.reject('Unable to fetch from: ' + response.url);
+  }
+}
+
+function resposneError(host) {
+  return err => {
+    console.log(err);
+    updateMessage('Something went wrong', host);
+  };
 }
 
 function fetchImageHash(id, fallback) {
@@ -367,8 +378,14 @@ function makeCrossSiteRequest(url, method = 'GET') {
         'User-Agent': navigator.userAgent
       },
       responseType: 'json',
-      onload: resp => resolve({ok: true, ...resp}),
-      onerror: resp => resolve({ok: false, url: resp.finalUrl, ...resp}),
+      onload: resp => {
+        if (resp.statusText == 200) {
+          resolve({ok: true, ...resp});
+        } else {
+          resolve({ok: false, url: resp.finalUrl, resp});
+        }
+      },
+      onerror: resp => resolve({ok: false, url: resp.finalUrl, response: resp}),
     });
   });
 }
