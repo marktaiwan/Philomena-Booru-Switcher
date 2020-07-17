@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.1.10
+// @version      1.1.11
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -379,7 +379,7 @@ function makeCrossSiteRequest(url, method = 'GET') {
       },
       responseType: 'json',
       onload: resp => {
-        if (resp.statusText == 200) {
+        if (resp.statusText == 200 || resp.status == 200) {
           resolve({ok: true, ...resp});
         } else {
           resolve({ok: false, url: resp.finalUrl, resp});
