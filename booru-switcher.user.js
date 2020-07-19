@@ -12,11 +12,13 @@
 // @match        *://*.ponybooru.org/*
 // @match        *://*.ponerpics.org/*
 // @match        *://*.ponerpics.com/*
+// @match        *://*.twibooru.org/*
 // @connect      derpibooru.org
 // @connect      trixiebooru.org
 // @connect      ponybooru.org
 // @connect      ponerpics.org
 // @connect      ponerpics.com
+// @connect      twibooru.org
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @inject-into  content
@@ -29,6 +31,7 @@ const SCRIPT_ID = 'booru_switcher';
 const boorus = [
   {name: 'Ponybooru', host: 'ponybooru.org'},
   {name: 'Ponerpics', host: 'ponerpics.org'},
+  {name: 'Twibooru', host: 'twibooru.org', bor: true},  // runs on Booru-on-Rails
   {name: 'Derpibooru', host: 'derpibooru.org'},
   {name: 'Trixiebooru', host: 'trixiebooru.org'},
 ];
@@ -92,7 +95,7 @@ function initSearchUI() {
        *
        *  To minimize latency, initiate client-side hashing and reverse search in parallel.
        */
-      const imageSearch = (useFallbacks)
+      const imageSearch = (useFallbacks && !isBor(host))
         ? searchByImage(fullImageURL, host).catch(resposneError(host))
         : null;
       const hashSearch = searchByHash(host, useFallbacks).catch(resposneError(host));
@@ -187,21 +190,26 @@ function resposneError(host) {
 }
 
 function fetchImageHash(id, fallback) {
-  const imageApiEndPoint = '/api/v1/json/images/';
-  const url = window.location.origin + imageApiEndPoint + id;
-
   if (!fallback) {
+    const url = (!isBor(window.location.host))
+      ? window.location.origin + '/api/v1/json/images/' + id
+      : window.location.origin + '/images/' + id + '.json';
+
     log('get hash by API');
     return window.fetch(url)
       .then(handleResponseError)
       .then(response => response.json())
       .then(json => {
-        const {sha512_hash: hash, orig_sha512_hash: orig_hash} = json.image;
+        const {
+          sha512_hash: hash,
+          orig_sha512_hash: orig_hash
+        } = (typeof json.image == 'object') ? json.image : json;  // booru-on-rails compatibility
+
         return {hash, orig_hash};
       });
   } else {
     log('get hash by download');
-    const imageTarget = $('#image_target')
+    const imageTarget = $('#image_target');
     const imageContainer = imageTarget.closest('.image-show-container');
     const mimeType = imageTarget.dataset.mimeType || imageContainer.dataset.mimeType;
     const uris = JSON.parse(imageTarget.dataset.uris);
@@ -353,7 +361,7 @@ function searchByHash(host, hashFallback) {
         .map(arr => arr.join('='))
         .join('&');
 
-      const searchApiEndPoint = '/api/v1/json/search/images';
+      const searchApiEndPoint = (!isBor(host)) ? '/api/v1/json/search/images' : '/search.json';
       const url = 'https://' + host + searchApiEndPoint + '?' + query;
 
       log('begin search by hash');
@@ -362,7 +370,10 @@ function searchByHash(host, hashFallback) {
     .then(makeCrossSiteRequest)
     .then(handleResponseError)
     .then(resp => resp.response)
-    .then(json => (json.total > 0) ? json.images[0].id : null)
+    .then(json => {
+      const arr = json.images || json.search;   // booru-on-rails compatibility
+      return (arr.length > 0) ? arr[0].id : null;
+    })
     .then(id => {
       if (id === null) log('no result for hash search');
       return id;
@@ -392,6 +403,10 @@ function makeCrossSiteRequest(url, method = 'GET') {
 
 function makeAbsolute(path, domain) {
   return path.match(/^(?:https?:)?\/\//) ? path : domain + path;
+}
+
+function isBor(host) {
+  return boorus.some(booru => (booru.host === host && booru.bor));
 }
 
 function updateMessage(msg, host) {
