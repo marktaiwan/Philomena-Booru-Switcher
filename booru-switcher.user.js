@@ -117,6 +117,7 @@ function initSearchUI() {
 }
 
 function initSwitcherUI() {
+  if (!$('header.header, .header__force-right')) return;
   const nav = createDropdown();
 
   const searchDict = getQueryVariables();
