@@ -29,11 +29,11 @@
 
 const SCRIPT_ID = 'booru_switcher';
 const boorus = [
-  {name: 'Ponybooru', host: 'ponybooru.org'},
-  {name: 'Ponerpics', host: 'ponerpics.org'},
-  {name: 'Twibooru', host: 'twibooru.org', bor: true},  // runs on Booru-on-Rails
-  {name: 'Derpibooru', host: 'derpibooru.org'},
-  {name: 'Trixiebooru', host: 'trixiebooru.org'},
+  {name: 'Ponybooru', host: 'ponybooru.org', filterId: 1554},
+  {name: 'Ponerpics', host: 'ponerpics.org', filterId: 2},
+  {name: 'Twibooru', host: 'twibooru.org', filterId: 2, bor: true},  // runs on Booru-on-Rails
+  {name: 'Derpibooru', host: 'derpibooru.org', filterId: 56027},
+  {name: 'Trixiebooru', host: 'trixiebooru.org', filterId: 56027},
 ];
 const DEBUG = false;
 
@@ -355,7 +355,7 @@ function searchByHash(host, hashFallback) {
     .then(searchTerm => {
       const dict = {
         q: searchTerm,
-        filter_id: '56027',   // Use the 'Everything' filter to get unfiltered results
+        filter_id: getFilterId(host),   // Use the 'Everything' filter to get unfiltered results
       };
       const query = Object.entries(dict)
         .map(arr => arr.join('='))
@@ -407,6 +407,10 @@ function makeAbsolute(path, domain) {
 
 function isBor(host) {
   return boorus.some(booru => (booru.host === host && booru.bor));
+}
+
+function getFilterId(host) {
+  return boorus.find(booru => booru.host === host).filterId;
 }
 
 function updateMessage(msg, host) {
