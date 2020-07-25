@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.2.1
+// @version      1.2.2
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -96,9 +96,9 @@ function initSearchUI() {
        *  To minimize latency, initiate client-side hashing and reverse search in parallel.
        */
       const imageSearch = (useFallbacks && !isBor(host))
-        ? searchByImage(fullImageURL, host).catch(resposneError(host))
+        ? searchByImage(fullImageURL, host)
         : null;
-      const hashSearch = searchByHash(host, useFallbacks).catch(resposneError(host));
+      const hashSearch = searchByHash(host, useFallbacks);
       const id = await hashSearch || await imageSearch;
 
       if (id) {
@@ -111,7 +111,7 @@ function initSearchUI() {
       }
     } catch (err) {
       console.error(err);
-      updateMessage('An error occurred', host);
+      updateMessage('Something went wrong', host, true);
     }
   });
 }
@@ -179,15 +179,8 @@ function handleResponseError(response) {
     return response;
   } else {
     console.log(response);
-    return Promise.reject('Unable to fetch from: ' + response.url);
+    throw new Error('Unable to fetch from: ' + response.url);
   }
-}
-
-function resposneError(host) {
-  return err => {
-    console.log(err);
-    updateMessage('Something went wrong', host);
-  };
 }
 
 function fetchImageHash(id, fallback) {
@@ -257,7 +250,7 @@ function searchByImage(imageUrl, host) {
       updateMessage('Searching... [image]', host);
       log('searchByImage');
       log('request url:' + url);
-      log('response count: ' + images.length);
+      log('Image search results: ' + images.length);
 
       if (images.length <= 1) return (images.length === 1) ? images[0].id : null;
 
@@ -373,11 +366,8 @@ function searchByHash(host, hashFallback) {
     .then(resp => resp.response)
     .then(json => {
       const arr = json.images || json.search;   // booru-on-rails compatibility
+      log('Hash search results: ' + arr.length);
       return (arr.length > 0) ? arr[0].id : null;
-    })
-    .then(id => {
-      if (id === null) log('no result for hash search');
-      return id;
     });
 }
 
@@ -414,8 +404,10 @@ function getFilterId(host) {
   return boorus.find(booru => booru.host === host).filterId;
 }
 
-function updateMessage(msg, host) {
+function updateMessage(msg, host, freeze = false) {
   const anchor = $(`.${SCRIPT_ID}_link[data-host="${host}"]`);
+  if (!anchor || anchor.dataset.frozen === '1') return;
+  if (freeze) anchor.dataset.frozen = '1';
   anchor.innerText = msg;
 }
 
