@@ -49,7 +49,7 @@ function getQueryVariables() {
   const search = window.location.search;
   if (search === '') return {};
 
-  const arr = window.location.search
+  const arr = search
     .substring(1)
     .split('&')
     .map(string => string.split('='));
@@ -381,7 +381,7 @@ function makeCrossSiteRequest(url, method = 'GET') {
       },
       responseType: 'json',
       onload: resp => {
-        if (resp.statusText == 200 || resp.status == 200) {
+        if (resp.status == 200) {
           resolve({ok: true, ...resp});
         } else {
           resolve({ok: false, url: resp.finalUrl, resp});
