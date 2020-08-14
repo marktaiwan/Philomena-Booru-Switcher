@@ -121,7 +121,7 @@ function initSwitcherUI() {
   const nav = createDropdown();
 
   const searchDict = getQueryVariables();
-  if (searchDict && searchDict.page) delete searchDict.page;
+  if (searchDict?.page) delete searchDict.page;
 
   const searchStr = (Object.keys(searchDict).length)
     ? '?' + Object.entries(searchDict).map(arr => arr.join('=')).join('&')
