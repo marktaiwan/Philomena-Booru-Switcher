@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.2.3
+// @version      1.2.4
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -102,10 +102,14 @@ function initSearchUI() {
       const id = await hashSearch || await imageSearch;
 
       if (id) {
-        const link = `https://${host}/images/${id}`;
+        const anchor = document.createElement('a');
+        anchor.href = `https://${host}/images/${id}`;
+        anchor.relList.add('noopener');
+        anchor.referrerPolicy = 'origin';
 
+        document.body.append(anchor);
+        anchor.click();
         updateMessage('Redirecting...', host);
-        window.location.href = link;
       } else {
         updateMessage('Not on ' + name, host);
       }
@@ -164,6 +168,8 @@ function createMenuItem(text, booru) {
   const anchor = document.createElement('a');
   anchor.classList.add('header__link');
   anchor.classList.add(`${SCRIPT_ID}_link`);
+  anchor.relList.add('noopener');
+  anchor.referrerPolicy = 'origin';
   anchor.dataset.name = name;
   anchor.dataset.host = host;
   anchor.innerText = text;
