@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.3.0
+// @version      1.3.1
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -383,6 +383,8 @@ function searchByApi(host) {
 
   const sourceId = getCurrentImageId();
   const site = hostToSiteMapping[window.location.host];
+  if (!site) return null;
+
   const query = makeQueryString({
     q: encodeSearch(`location:${site} && id_at_location:${sourceId}`),
     filter_id: getFilterId(host),
