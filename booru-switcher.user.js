@@ -373,7 +373,6 @@ function searchByHash(host, hashFallback) {
 
 // Twibooru specific
 function searchByApi(host) {
-  log('Searching Twibooru with API');
   const hostToSiteMapping = {
     'www.derpibooru.org': 'derpibooru',
     'www.trixiebooru.org': 'derpibooru',
@@ -390,6 +389,7 @@ function searchByApi(host) {
     filter_id: getFilterId(host),
   });
   const url = 'https://twibooru.org/search.json' + query;
+  log('Searching Twibooru with API');
   log(url);
   return makeCrossSiteRequest(url)
     .then(handleResponseError)
