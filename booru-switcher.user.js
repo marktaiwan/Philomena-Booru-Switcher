@@ -13,12 +13,14 @@
 // @match        *://*.ponerpics.org/*
 // @match        *://*.ponerpics.com/*
 // @match        *://*.twibooru.org/*
+// @match        *://*.manebooru.art/*
 // @connect      derpibooru.org
 // @connect      trixiebooru.org
 // @connect      ponybooru.org
 // @connect      ponerpics.org
 // @connect      ponerpics.com
 // @connect      twibooru.org
+// @connect      manebooru.art
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @inject-into  content
@@ -34,6 +36,7 @@ const boorus = [
   {name: 'Twibooru', host: 'twibooru.org', filterId: 2, bor: true},  // runs on Booru-on-Rails
   {name: 'Derpibooru', host: 'derpibooru.org', filterId: 56027},
   {name: 'Trixiebooru', host: 'trixiebooru.org', filterId: 56027},
+  {name: 'Manebooru', host: 'manebooru.org', filterId: 56027},
 ];
 const DEBUG = false;
 
@@ -378,6 +381,7 @@ function searchByApi(host) {
     'www.trixiebooru.org': 'derpibooru',
     'derpibooru.org': 'derpibooru',
     'trixiebooru.org': 'derpibooru',
+    'manebooru.org': 'derpibooru',
   };
 
   const sourceId = getCurrentImageId();
