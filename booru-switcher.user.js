@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.3.1
+// @version      1.3.2
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -207,9 +207,9 @@ function fetchImageHash(id, fallback) {
       : window.location.origin + '/images/' + id + '.json';
 
     log('get hash by API');
-    return window.fetch(url)
+    return makeRequest(url)
       .then(handleResponseError)
-      .then(response => response.json())
+      .then(resp => resp.response)
       .then(json => {
         const {
           sha512_hash: hash,
@@ -230,9 +230,9 @@ function fetchImageHash(id, fallback) {
       ? uris.full
       : uris.full.replace('/view/', /download/).replace(/\.\w+$/, '.svg');
 
-    return fetch(makeAbsolute(fullImageURL, window.location.origin))
+    return makeRequest(makeAbsolute(fullImageURL, window.location.origin), 'arraybuffer')
       .then(handleResponseError)
-      .then(response => response.arrayBuffer())
+      .then(resp => resp.response)
       .then(buffer => window.crypto.subtle.digest('SHA-512', buffer))
       .then(hashBuffer => {
 
@@ -257,7 +257,7 @@ function searchByImage(imageUrl, host) {
   const apiEndPoint = '/api/v1/json/search/reverse';
   const url = 'https://' + host + apiEndPoint + '?url=' + imageUrl;
 
-  return makeCrossSiteRequest(url, 'POST')
+  return makeRequest(url, 'json', 'POST')
     .then(handleResponseError)
     .then(resp => resp.response)
     .then(json => {
@@ -361,7 +361,7 @@ function searchByHash(host, hashFallback) {
       log('begin search by hash');
       return url;
     })
-    .then(makeCrossSiteRequest)
+    .then(makeRequest)
     .then(handleResponseError)
     .then(resp => resp.response)
     .then(json => {
@@ -391,13 +391,13 @@ function searchByApi(host) {
   const url = 'https://twibooru.org/search.json' + query;
   log('Searching Twibooru with API');
   log(url);
-  return makeCrossSiteRequest(url)
+  return makeRequest(url)
     .then(handleResponseError)
     .then(resp => resp.response)
     .then(json => (json.total > 0) ? json.search[0].id : null);
 }
 
-function makeCrossSiteRequest(url, method = 'GET') {
+function makeRequest(url, responseType = 'json', method = 'GET') {
   return new Promise((resolve) => {
     GM_xmlhttpRequest({
       url: url,
@@ -405,7 +405,7 @@ function makeCrossSiteRequest(url, method = 'GET') {
       headers: {
         'User-Agent': navigator.userAgent
       },
-      responseType: 'json',
+      responseType,
       onload: resp => {
         if (resp.status == 200) {
           resolve({ok: true, ...resp});
