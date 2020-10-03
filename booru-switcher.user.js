@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.3.2
+// @version      1.3.3
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -33,7 +33,6 @@ const boorus = [
   {name: 'Ponerpics', host: 'ponerpics.org', filterId: 2},
   {name: 'Twibooru', host: 'twibooru.org', filterId: 2, bor: true},  // runs on Booru-on-Rails
   {name: 'Derpibooru', host: 'derpibooru.org', filterId: 56027},
-  {name: 'Trixiebooru', host: 'trixiebooru.org', filterId: 56027},
 ];
 const DEBUG = false;
 
