@@ -107,7 +107,7 @@ function initSearchUI() {
 
       if (id) {
         const anchor = document.createElement('a');
-        anchor.href = `https://${host}/images/${id}`;
+        anchor.href = `https://${host}/${(isBor(host)) ? 'posts' : 'images'}/${id}`;
         anchor.relList.add('noopener');
         anchor.referrerPolicy = 'origin';
 
@@ -181,7 +181,7 @@ function createMenuItem(text, booru) {
 }
 
 function getCurrentImageId() {
-  const regex = new RegExp(`(?:${window.location.origin})/(?:images/)?(?<domID>\\d+)(?:\\?.*|/|\\.html)?`, 'i');
+  const regex = new RegExp(`(?:${window.location.origin})/(?:images/|posts/)?(?<domID>\\d+)(?:\\?.*|/|\\.html)?`, 'i');
   const result = regex.exec(window.location.href);
   if (result) {
     return result.groups.domID;
@@ -203,7 +203,7 @@ function fetchImageHash(id, fallback) {
   if (!fallback) {
     const url = (!isBor(window.location.host))
       ? window.location.origin + '/api/v1/json/images/' + id
-      : window.location.origin + '/images/' + id + '.json';
+      : window.location.origin + '/posts/' + id + '.json';
 
     log('get hash by API');
     return makeRequest(url)
