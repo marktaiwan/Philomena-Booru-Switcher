@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.3.6
+// @version      1.3.7
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -271,12 +271,16 @@ function searchByImage(imageUrl, host) {
       const images = json.images
         .filter(img => (img.duplicate_of === null && img.deletion_reason === null));
 
+      const dupes = json.images.filter(img => img.duplicate_of !== null);
+
       updateMessage('Searching... [image]', host);
       log('searchByImage');
       log('request url:' + url);
       log('Image search results: ' + images.length);
 
-      if (images.length <= 1) return (images.length === 1) ? images[0].id : null;
+      if (images.length <= 1) return (images.length === 1)
+        ? images[0].id
+        : (dupes.length > 0) ? dupes[0].id : null;
 
       /*
        *  There are more than one results.
