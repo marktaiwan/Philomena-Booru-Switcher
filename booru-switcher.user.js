@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.3.8
+// @version      1.3.9
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -159,11 +159,11 @@ function initSwitcherUI() {
 
   for (const booru of boorus) {
     const {name, host} = booru;
+    const path = (!isBor(host)) ? pathname : pathTranslation(true, pathname);
     if (window.location.host.match(host)) continue;
-    if (isBor(host)) pathname = pathTranslation(true, pathname);
 
     const anchor = createMenuItem(name, booru);
-    anchor.href = window.location.protocol + '//' + host + pathname + searchStr;
+    anchor.href = window.location.protocol + '//' + host + path + searchStr;
     nav.append(anchor);
   }
 }
