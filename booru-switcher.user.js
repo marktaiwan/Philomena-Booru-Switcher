@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Booru Switcher
 // @description  Switch between Philomena-based boorus
-// @version      1.3.7
+// @version      1.3.8
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -124,6 +124,25 @@ function initSearchUI() {
   });
 }
 
+function pathTranslation(toBor, pathname) {
+  const pathMapping = [{
+    bor: '/search/index',
+    philomena: '/search',
+  },{
+    bor: '/posts',
+    philomena: '/images',
+  },{
+    bor: '/posts/new',
+    philomena: '/images/new',
+  }];
+
+  for (const {bor, philomena} of pathMapping) {
+    if (!toBor && pathname == bor) return philomena;
+    if (toBor && pathname == philomena) return bor;
+  }
+  return pathname;
+}
+
 function initSwitcherUI() {
   if (!$('header.header, .header__force-right')) return;
   const nav = createDropdown();
@@ -136,21 +155,12 @@ function initSwitcherUI() {
     : '';
 
   let pathname = window.location.pathname;
-
-  if (isBor(window.location.host)) {
-    // booru-on-rails hack
-    if (pathname == '/search/index') pathname = '/search';
-    if (pathname == '/posts') pathname = '/images';
-  }
+  if (isBor(window.location.host)) pathname = pathTranslation(false, pathname);
 
   for (const booru of boorus) {
     const {name, host} = booru;
     if (window.location.host.match(host)) continue;
-
-    if (isBor(host)) {
-      // booru-on-rails hack
-      if (pathname == '/images') pathname = '/posts';
-    }
+    if (isBor(host)) pathname = pathTranslation(true, pathname);
 
     const anchor = createMenuItem(name, booru);
     anchor.href = window.location.protocol + '//' + host + pathname + searchStr;
