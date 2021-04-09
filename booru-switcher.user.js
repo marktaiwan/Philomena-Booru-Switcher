@@ -62,13 +62,13 @@ function getQueryVariables() {
 }
 
 function initSearchUI() {
-  const nav = createDropdown();
+  const nav = createDropdown('Search', 'Search for this image on another site');
   nav.style.width = '200px';
 
   for (const booru of boorus) {
     const {name, host} = booru;
     if (window.location.host.match(host)) continue;
-    const anchor = createMenuItem(`Search on ${name}`, booru);
+    const anchor = createMenuItem(name, booru);
     anchor.href = '#';
     nav.append(anchor);
   }
@@ -145,7 +145,7 @@ function pathTranslation(toBor, pathname) {
 
 function initSwitcherUI() {
   if (!$('header.header, .header__force-right')) return;
-  const nav = createDropdown();
+  const nav = createDropdown('Switch', 'Switch to another booru');
 
   const searchDict = getQueryVariables();
   if (searchDict?.page) delete searchDict.page;
@@ -168,15 +168,15 @@ function initSwitcherUI() {
   }
 }
 
-function createDropdown() {
+function createDropdown(text, title = '') {
   const header = $('header.header');
   const headerRight = $('.header__force-right', header);
   const menuButton = document.createElement('div');
   menuButton.classList.add('dropdown', 'header__dropdown', `${SCRIPT_ID}__menu`);
   menuButton.innerHTML = `
-<a class="header__link" href="#" data-click-preventdefault="true" title="Switch booru">
+<a class="header__link" href="#" data-click-preventdefault="true" title="${title}">
   <i class="${SCRIPT_ID}__icon fa fa-list-ul"></i>
-  <span class="hide-limited-desktop hide-mobile">Switch</span>
+  <span class="hide-limited-desktop hide-mobile">${text}</span>
   <span data-click-preventdefault="true"><i class="fa fa-caret-down"></i></span>
 </a>
 <nav class="dropdown__content"></nav>`;
