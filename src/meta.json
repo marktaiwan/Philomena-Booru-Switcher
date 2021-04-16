@@ -1,0 +1,27 @@
+{
+    "namespace": "https://github.com/marktaiwan/",
+    "homepageURL": "https://github.com/marktaiwan/Philomena-Booru-Switcher",
+    "supportURL": "https://github.com/marktaiwan/Philomena-Booru-Switcher/issues",
+    "match": [
+        "*://*.derpibooru.org/*",
+        "*://*.trixiebooru.org/*",
+        "*://*.ponybooru.org/*",
+        "*://*.ponerpics.org/*",
+        "*://*.ponerpics.com/*",
+        "*://*.twibooru.org/*"
+    ],
+    "connect": [
+        "derpibooru.org",
+        "trixiebooru.org",
+        "ponybooru.org",
+        "ponerpics.org",
+        "ponerpics.com",
+        "twibooru.org"
+    ],
+    "grant": [
+        "GM_xmlhttpRequest",
+        "unsafeWindow"
+    ],
+    "inject-into": "content",
+    "noframes": true
+}
