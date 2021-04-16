@@ -66,8 +66,8 @@ function initSearchUI() {
       } else {
 
         /*
-         *  Use reverse image serch as additional level of fallback if client-side hashing
-         *  failed to yeild result. This takes the least precedence due to its inaccuracies.
+         *  Use reverse image search as additional level of fallback if client-side hashing
+         *  failed to yield result. This takes the least precedence due to its inaccuracies.
          *
          *  To minimize latency, initiate client-side hashing and reverse search in parallel.
          */
@@ -333,7 +333,7 @@ function searchByHash(host, hashFallback) {
       log(hashes);
 
       /*
-       *  hash:      the hash of the optimized image serverd by the site
+       *  hash:      the hash of the optimized image served by the site
        *  orig_hash: the hash of the original uploaded file
        */
       const searchItems = [];
