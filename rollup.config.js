@@ -37,7 +37,6 @@ export default args => {
     output: {
       file: path.format(outputFile),
       format: 'iife',
-      banner: '/* eslint-disable */',
       preferConst: true,
     },
     external: id => (/^react(-dom)?$/).test(id),
