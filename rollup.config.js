@@ -41,7 +41,7 @@ export default args => {
       preferConst: true,
     },
     external: id => (/^react(-dom)?$/).test(id),
-    treeshake: false,
+    treeshake: true,
     plugins: [
       replace({
         'process.env.NODE_ENV': JSON.stringify('production'),
