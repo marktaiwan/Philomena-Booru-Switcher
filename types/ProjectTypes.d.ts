@@ -12,3 +12,9 @@ type GMResponseError = {
   url: string,
   resp: GM_Types.XHRResponse<unknown>,
 };
+
+interface Window {
+  booru_switcher: {
+    DEBUG: boolean,
+  };
+}

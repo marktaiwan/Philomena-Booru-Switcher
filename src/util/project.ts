@@ -1,5 +1,5 @@
 import {$} from './common';
-import {SCRIPT_ID, DEBUG, boorus} from '../const';
+import {SCRIPT_ID, boorus} from '../const';
 
 function encodeSearch(searchTerm: string): string {
   return searchTerm
@@ -34,7 +34,7 @@ function updateMessage(msg: string, host: BooruRecord['host'], freeze = false): 
 }
 
 function log(obj: unknown): void {
-  if (DEBUG) console.log(obj);
+  if (window.booru_switcher.DEBUG) console.log(obj);
 }
 
 export {encodeSearch, getCurrentImageId, getFilterId, isBor, updateMessage, log};
