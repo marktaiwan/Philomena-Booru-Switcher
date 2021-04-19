@@ -9,6 +9,10 @@
         "greasemonkey": true,
         "node": true
     },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "sourceType": "module",
         "ecmaVersion": 2021
@@ -16,12 +20,43 @@
     "overrides": [
         {
             "files": ["**/*.ts"],
-            "excludedFiles": ["**/*.d.ts"],
-            "parser": "@typescript-eslint/parser",
-            "extends": [
-                "eslint:recommended",
-                "plugin:@typescript-eslint/recommended"
-            ]
+            "extends": ["plugin:@typescript-eslint/recommended"],
+            "rules": {
+                "no-undef": "off",
+                "no-redeclare": "off",
+                "@typescript-eslint/no-redeclare": [
+                    "error"
+                ],
+                "no-unused-vars": "off",
+                "@typescript-eslint/no-unused-vars": [
+                    "error"
+                ],
+                "@typescript-eslint/member-delimiter-style": [
+                    "warn",
+                    {
+                        "multiline": {
+                            "delimiter": "comma",
+                            "requireLast": true
+                        },
+                        "singleline": {
+                            "delimiter": "comma",
+                            "requireLast": false
+                        },
+                        "overrides": {
+                            "interface": {
+                                "multiline": {
+                                    "delimiter": "semi",
+                                    "requireLast": true
+                                },
+                                "singleline": {
+                                    "delimiter": "semi",
+                                    "requireLast": true
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
         }
     ],
     "rules": {
