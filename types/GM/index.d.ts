@@ -1,18 +1,18 @@
 /*
 https://github.com/vannhi/userscript-typescript-webpack/blob/master/tampermonkey-module.d.ts
 */
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any */
+declare const unsafeWindow: typeof window;
 
-declare var unsafeWindow: typeof window;
-
-declare var GM_info: {
+declare const GM_info: {
   version: string,
   scriptWillUpdate: boolean,
-  scriptHandler: "Tampermonkey" | "Violentmonkey" | "Greasemonkey",
+  scriptHandler: 'Tampermonkey' | 'Violentmonkey' | 'Greasemonkey',
   scriptUpdateURL?: string,
   scriptSource: string,
   scriptMetaStr?: string,
   isIncognito: boolean,
-  downloadMode: "native" | "disabled" | "browser",
+  downloadMode: 'native' | 'disabled' | 'browser',
   script: {
     author?: string,
     description?: string,
@@ -26,7 +26,7 @@ declare var GM_info: {
     name: string,
     namespace?: string,
     position: number,
-    "run-at": string,
+    'run-at': string,
     resources: string[],
     unwrap: boolean,
     version: string,
@@ -97,105 +97,105 @@ declare function GM_notification(text: string, title: string, image: string, onc
 declare function GM_setClipboard(data: string, info?: string | { type?: string, minetype?: string }): void;
 
 declare namespace GM_Types {
-  
+
   type ValueChangeListener = (name: string, oldValue: any, newValue: any, remote: boolean) => any;
-  
+
   interface OpenTabOptions {
-    active?: boolean,
-    insert?: boolean,
-    setParent?: boolean
+    active?: boolean;
+    insert?: boolean;
+    setParent?: boolean;
   }
-  
+
   interface XHRResponse<CONTEXT_TYPE> extends Function {
-    
-    DONE: 4,
-    HEADERS_RECEIVED: 2,
-    LOADING: 3,
-    OPENED: 1,
-    UNSENT: 0
-    
-    context: CONTEXT_TYPE,
-    finalUrl: string,
-    readyState: 0 | 1 | 2 | 3 | 4,
-    responseHeaders: string,
-    status: number,
-    statusText: string,
-    response: any,
-    responseText: string,
-    responseXML: Document | null
+
+    DONE: 4;
+    HEADERS_RECEIVED: 2;
+    LOADING: 3;
+    OPENED: 1;
+    UNSENT: 0;
+
+    context: CONTEXT_TYPE;
+    finalUrl: string;
+    readyState: 0 | 1 | 2 | 3 | 4;
+    responseHeaders: string;
+    status: number;
+    statusText: string;
+    response: any;
+    responseText: string;
+    responseXML: Document | null;
   }
-  
+
   interface XHRProgress<CONTEXT_TYPE> extends XHRResponse<CONTEXT_TYPE> {
-    done: number,
-    lengthComputable: boolean,
-    loaded: number,
-    position: number,
-    total: number,
-    totalSize: number
+    done: number;
+    lengthComputable: boolean;
+    loaded: number;
+    position: number;
+    total: number;
+    totalSize: number;
   }
-  
+
   type Listener<OBJ> = (this: OBJ, event: OBJ) => any;
-  
+
   interface XHRDetails<CONTEXT_TYPE> {
-    method?: "GET" | "HEAD" | "POST" | "PUT",
-    url?: string,
-    headers?: { readonly [key: string]: string },
-    data?: string,
-    binary?: boolean,
-    timeout?: number,
-    context?: CONTEXT_TYPE,
-    responseType?: "arraybuffer" | "blob" | "json",
-    overrideMimeType?: string,
-    anonymous?: boolean,
-    fetch?: boolean,
-    username?: string,
-    password?: string,
-    
-    onload?: Listener<XHRResponse<CONTEXT_TYPE>>,
-    onloadstart?: Listener<XHRResponse<CONTEXT_TYPE>>,
-    onprogress?: Listener<XHRProgress<CONTEXT_TYPE>>,
-    onreadystatechange?: Listener<XHRResponse<CONTEXT_TYPE>>,
-    ontimeout?: Listener<XHRProgress<CONTEXT_TYPE>>,
-    onabort?: Listener<XHRProgress<CONTEXT_TYPE>>,
-    onerror?: Listener<XHRProgress<CONTEXT_TYPE>>
+    method?: 'GET' | 'HEAD' | 'POST' | 'PUT';
+    url?: string;
+    headers?: { readonly [key: string]: string};
+    data?: string;
+    binary?: boolean;
+    timeout?: number;
+    context?: CONTEXT_TYPE;
+    responseType?: 'arraybuffer' | 'blob' | 'json';
+    overrideMimeType?: string;
+    anonymous?: boolean;
+    fetch?: boolean;
+    username?: string;
+    password?: string;
+
+    onload?: Listener<XHRResponse<CONTEXT_TYPE>>;
+    onloadstart?: Listener<XHRResponse<CONTEXT_TYPE>>;
+    onprogress?: Listener<XHRProgress<CONTEXT_TYPE>>;
+    onreadystatechange?: Listener<XHRResponse<CONTEXT_TYPE>>;
+    ontimeout?: Listener<XHRProgress<CONTEXT_TYPE>>;
+    onabort?: Listener<XHRProgress<CONTEXT_TYPE>>;
+    onerror?: Listener<XHRProgress<CONTEXT_TYPE>>;
   }
-  
+
   interface AbortHandle<RETURN_TYPE> {
-    abort(): RETURN_TYPE
+    abort(): RETURN_TYPE;
   }
-  
+
   interface DownloadError {
-    error: "not_enabled" | "not_whitelisted" | "not_permitted" | "not_supported" | "not_succeeded",
-    details?: string
+    error: 'not_enabled' | 'not_whitelisted' | 'not_permitted' | 'not_supported' | 'not_succeeded';
+    details?: string;
   }
-  
+
   interface DownloadDetails {
-    url: string,
-    name: string,
-    headers?: { readonly [key: string]: string },
-    saveAs?: boolean,
-    timeout?: number,
-    onerror?: Listener<DownloadError>,
-    ontimeout?: Listener<object>,
-    onload?: Listener<object>,
-    onprogress?: Listener<XHRProgress<void>>
+    url: string;
+    name: string;
+    headers?: { readonly [key: string]: string};
+    saveAs?: boolean;
+    timeout?: number;
+    onerror?: Listener<DownloadError>;
+    ontimeout?: Listener<object>;
+    onload?: Listener<object>;
+    onprogress?: Listener<XHRProgress<void>>;
   }
-  
+
   interface NotificationThis extends NotificationDetails {
-    id: string
+    id: string;
   }
-  
+
   type NotificationOnClick = (this: NotificationThis) => any;
   type NotificationOnDone = (this: NotificationThis, clicked: boolean) => any;
-  
+
   interface NotificationDetails {
-    text?: string,
-    title?: string,
-    image?: string,
-    highlight?: boolean,
-    timeout?: number
-    onclick?: NotificationOnClick,
-    ondone?: NotificationOnDone,
+    text?: string;
+    title?: string;
+    image?: string;
+    highlight?: boolean;
+    timeout?: number;
+    onclick?: NotificationOnClick;
+    ondone?: NotificationOnDone;
   }
 }
 
@@ -204,33 +204,33 @@ declare namespace GMType {
   type MenuCommandId = number
   type StorageValue = string | number | boolean
   interface NotificationDetails {
-    text?: string,
-    title?: string,
-    image?: string,
-    highlight?: boolean,
-    silent?: boolean,
-    timeout?: number,
-    ondone?: NotificationOnDone,
-    onclick?: NotificationOnClick
+    text?: string;
+    title?: string;
+    image?: string;
+    highlight?: boolean;
+    silent?: boolean;
+    timeout?: number;
+    ondone?: NotificationOnDone;
+    onclick?: NotificationOnClick;
   }
   interface NotificationThis extends NotificationDetails {
-    id: string
+    id: string;
   }
   type NotificationOnClick = (this: NotificationThis) => any
   type NotificationOnDone = (this: NotificationThis, clicked: boolean) => any
 }
 
-interface GM {
-  getValue(key: string, defaultValue: GMType.StorageValue): Promise<GMType.StorageValue>
-  setValue(key: string, value: GMType.StorageValue): Promise<void>
-  
-  registerMenuCommand(caption: string, commandFunc: GMType.RegisterMenuCommandListener, accessKey?: string): Promise<GMType.MenuCommandId>
-  unregisterMenuCommand(menuCmdId: GMType.MenuCommandId): Promise<void>
-  
-  addStyle(css: string): Promise<HTMLStyleElement>
-  
-  notification(details: GMType.NotificationDetails, ondone?: GMType.NotificationOnDone): Promise<void>
-  notification(text: string, title: string, image?: string, onclick?: GMType.NotificationOnDone): Promise<void>
+interface GMInterface {
+  getValue(key: string, defaultValue: GMType.StorageValue): Promise<GMType.StorageValue>;
+  setValue(key: string, value: GMType.StorageValue): Promise<void>;
+
+  registerMenuCommand(caption: string, commandFunc: GMType.RegisterMenuCommandListener, accessKey?: string): Promise<GMType.MenuCommandId>;
+  unregisterMenuCommand(menuCmdId: GMType.MenuCommandId): Promise<void>;
+
+  addStyle(css: string): Promise<HTMLStyleElement>;
+
+  notification(details: GMType.NotificationDetails, ondone?: GMType.NotificationOnDone): Promise<void>;
+  notification(text: string, title: string, image?: string, onclick?: GMType.NotificationOnDone): Promise<void>;
 }
 
-declare var GM: GM;
+declare const GM: GMInterface;

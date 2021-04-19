@@ -1,7 +1,10 @@
 import {log} from './util';
 
-function handleResponseError(response) {
-  if (response.ok) {
+function handleResponseError(
+  response: GMResponseObject | GMResponseError
+): GMResponseObject {
+  if (response.ok === true) {
+    response;
     return response;
   } else {
     log(response);
@@ -9,7 +12,11 @@ function handleResponseError(response) {
   }
 }
 
-function makeRequest(url, responseType = 'json', method = 'GET') {
+function makeRequest(
+  url: string,
+  responseType: GM_Types.XHRDetails<unknown>['responseType'] = 'json',
+  method: GM_Types.XHRDetails<unknown>['method'] = 'GET'
+): Promise<GMResponseObject> {
   return new Promise((resolve) => {
     GM_xmlhttpRequest({
       url: url,

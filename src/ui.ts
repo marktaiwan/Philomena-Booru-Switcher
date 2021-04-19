@@ -1,8 +1,9 @@
 import {SCRIPT_ID, boorus} from './const';
 import {$, updateMessage, isBor, makeAbsolute, getQueryVariableAll} from './util';
 import {searchByHash, searchByImage, searchByApi} from './search';
+import type {ImageResponse} from '../types/BooruApi';
 
-function createDropdown(text, title = '') {
+function createDropdown(text: string, title = ''): HTMLElement {
   const header = $('header.header');
   const headerRight = $('.header__force-right', header);
   const menuButton = document.createElement('div');
@@ -19,7 +20,7 @@ function createDropdown(text, title = '') {
   return $('nav', menuButton);
 }
 
-function createMenuItem(text, booru) {
+function createMenuItem(text: string, booru: BooruRecord): HTMLAnchorElement {
   const {name, host} = booru;
   const anchor = document.createElement('a');
   anchor.classList.add('header__link');
@@ -32,7 +33,7 @@ function createMenuItem(text, booru) {
   return anchor;
 }
 
-function pathTranslation(toBor, pathname) {
+function pathTranslation(toBor: boolean, pathname: string): string {
   const pathMapping = [{
     bor: '/search/index',
     philomena: '/search',
@@ -51,7 +52,7 @@ function pathTranslation(toBor, pathname) {
   return pathname;
 }
 
-function initSearchUI() {
+function initSearchUI(): void {
   const nav = createDropdown('Search', 'Search for this image on another site');
   nav.style.width = '200px';
 
@@ -66,19 +67,20 @@ function initSearchUI() {
   nav.addEventListener('click', async e => {
     e.preventDefault();
     e.stopPropagation();
+    if (!(e.target instanceof HTMLAnchorElement)) return;
 
     const anchor = e.target;
     const useFallbacks = e.ctrlKey;
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
     const imageTarget = $('#image_target');
-    const uris = JSON.parse(imageTarget.dataset.uris);
+    const uris: ImageResponse.Representations = JSON.parse(imageTarget.dataset.uris);
     const fullImageURL = makeAbsolute(uris.full, window.location.origin);
 
     try {
       updateMessage('Searching...', host);
 
-      let id = null;
+      let id: number = null;
       if (isBor(host)) {
         // Twibooru
         id = await searchByApi(host) || await searchByHash(host, useFallbacks);
@@ -114,7 +116,7 @@ function initSearchUI() {
   });
 }
 
-function initSwitcherUI() {
+function initSwitcherUI(): void {
   if (!$('header.header, .header__force-right')) return;
   const nav = createDropdown('Switch', 'Switch to another booru');
 
