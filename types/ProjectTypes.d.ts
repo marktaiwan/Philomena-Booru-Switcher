@@ -15,6 +15,6 @@ type GMResponseError = {
 
 interface Window {
   booru_switcher: {
-    DEBUG: boolean,
+    DEBUG?: boolean,
   };
 }

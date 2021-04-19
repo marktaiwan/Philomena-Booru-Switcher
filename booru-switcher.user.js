@@ -34,6 +34,7 @@
     {name: 'Twibooru', host: 'twibooru.org', filterId: 2, bor: true},
     {name: 'Derpibooru', host: 'derpibooru.org', filterId: 56027},
   ];
+  window.booru_switcher = {};
   window.booru_switcher.DEBUG = false;
 
   /* Shorthands  */

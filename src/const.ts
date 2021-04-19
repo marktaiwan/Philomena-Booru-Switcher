@@ -5,6 +5,7 @@ const boorus: BooruRecord[] = [
   {name: 'Twibooru', host: 'twibooru.org', filterId: 2, bor: true},  // runs on Booru-on-Rails
   {name: 'Derpibooru', host: 'derpibooru.org', filterId: 56027},
 ];
+window.booru_switcher = {};
 window.booru_switcher.DEBUG = false;
 
 export {SCRIPT_ID, boorus};
