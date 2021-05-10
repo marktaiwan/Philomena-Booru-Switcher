@@ -1,34 +1,27 @@
 /* Shorthands  */
 
 type SelectorRoot = Document | HTMLElement;
-type TagNameMapper<T extends keyof HTMLElementTagNameMap | string> = T extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[T] : HTMLElement;
 
-function $<K extends keyof HTMLElementTagNameMap | string>(
-  selector: K,
-  root: SelectorRoot = document
-): TagNameMapper<K> {
+function $<K extends keyof HTMLElementTagNameMap>(selector: K, root?: SelectorRoot): HTMLElementTagNameMap[K];
+function $<T extends HTMLElement>(selector: string, root?: SelectorRoot): T;
+function $(selector: string, root: SelectorRoot = document): HTMLElement {
   return root.querySelector(selector);
 }
 
-function $$<K extends keyof HTMLElementTagNameMap | string>(
-  selector: K,
-  root: SelectorRoot = document
-): NodeListOf<TagNameMapper<K>> {
+function $$<K extends keyof HTMLElementTagNameMap>(selector: K, root?: SelectorRoot): NodeListOf<HTMLElementTagNameMap[K]>;
+function $$<T extends HTMLElement>(selector: string, root?: SelectorRoot): NodeListOf<T>;
+function $$(selector: string, root: SelectorRoot = document): NodeListOf<HTMLElement> {
   return root.querySelectorAll(selector);
 }
 
-// No idea why this doesn't work, workaround by overloading
-// function create<K extends keyof HTMLElementTagNameMap | string>(ele: K): TagNameMapper<K> {
-//   return document.createElement(ele);
-// }
-
 function create<K extends keyof HTMLElementTagNameMap>(ele: K): HTMLElementTagNameMap[K];
-function create(ele: string): HTMLElement;
-function create<K extends keyof HTMLElementTagNameMap>(ele: K | string): HTMLElementTagNameMap[K] | HTMLElement {
+function create<T extends HTMLElement>(ele: string): T;
+function create(ele: string): HTMLElement {
   return document.createElement(ele);
 }
 
 /* Url */
+
 function makeAbsolute(path: string, domain: string): string {
   return path.match(/^(?:https?:)?\/\//) ? path : domain + path;
 }
