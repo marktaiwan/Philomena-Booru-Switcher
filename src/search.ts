@@ -3,10 +3,6 @@ import {encodeSearch, getCurrentImageId, isBor, getFilterId, updateMessage, log}
 import {makeRequest} from './request';
 import {ImageResponse, Philomena, Twibooru} from '../types/BooruApi';
 
-interface ImageObjectWeighted extends Philomena.Image.ImageObject {
-  simScore: number;
-}
-
 function fetchImageHash(id: string, fallback: boolean): Promise<{hash: string, orig_hash: string}> {
   if (!fallback) {
     const url = (!isBor(window.location.host))
@@ -103,11 +99,7 @@ function searchByImage(imageUrl: string, host: BooruRecord['host']): Promise<num
   return makeRequest(url, 'json', 'POST')
     .then(resp => resp.response as Philomena.Api.Search)
     .then(json => {
-      const images = (json
-        .images
-        .filter(img => img.duplicate_of === null && img.deletion_reason === null)
-      ) as ImageObjectWeighted[];
-
+      const images = json.images.filter(img => img.duplicate_of === null && img.deletion_reason === null);
       const dupes = json.images.filter(img => img.duplicate_of !== null);
 
       updateMessage('Searching... [image]', host);
@@ -153,10 +145,11 @@ function searchByImage(imageUrl: string, host: BooruRecord['host']): Promise<num
       } as const;
       const weightSum = Object.values(weights as {[k: string]: number}).reduce((sum, val) => sum + val);
 
-      images.forEach(image => {
-        const attributes = {
-          mime_type: (image.mime_type == sourceImage.mime_type) ? 1 : 0,
-          aspect_ratio: 1 - Math.tanh(Math.abs(sourceImage.aspect_ratio - image.aspect_ratio)),
+      const bestMatch = images
+        .map(image => {
+          const attributes = {
+            mime_type: (image.mime_type == sourceImage.mime_type) ? 1 : 0,
+            aspect_ratio: 1 - Math.tanh(Math.abs(sourceImage.aspect_ratio - image.aspect_ratio)),
           resolution: 1 - Math.tanh(
             Math.abs(
               (sourceImage.width * sourceImage.height) - (image.width * image.height)
@@ -170,18 +163,16 @@ function searchByImage(imageUrl: string, host: BooruRecord['host']): Promise<num
             const [attrName, weight] = arr;
             const attrScore = attributes[attrName] * (weight / weightSum);
             return sum + attrScore;
-          }, 0);
+            }, 0);
 
-        log({id: image.id, simScore: score, image, attributes});
-        image.simScore = score;
-      });
-
-      const bestMatch = images.reduce(
-        (bestMatch, current) => (bestMatch.simScore > current.simScore) ? bestMatch : current
-      );
+          log({id: image.id, simScore: score, image, attributes});
+          return {id: image.id, simScore: score};
+        })
+        .reduce(
+          (bestMatch, current) => (bestMatch.simScore > current.simScore) ? bestMatch : current
+        );
       log({bestMatch});
       return bestMatch.id;
-
     });
 }
 
