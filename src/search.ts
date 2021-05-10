@@ -7,7 +7,7 @@ function fetchImageHash(id: string, fallback: boolean): Promise<{hash: string, o
   if (!fallback) {
     const url = (!isBor(window.location.host))
       ? window.location.origin + '/api/v1/json/images/' + id
-      : window.location.origin + '/posts/' + id + '.json';
+      : window.location.origin + '/api/v3/posts/' + id;
 
     log('get hash by API');
     return makeRequest(url)
@@ -16,9 +16,9 @@ function fetchImageHash(id: string, fallback: boolean): Promise<{hash: string, o
         const {
           sha512_hash: hash,
           orig_sha512_hash: orig_hash
-        } = (typeof json.image == 'object')
-          ? json.image as Philomena.Image.ImageObject
-          : json as Twibooru.Image.ImageObject;  // booru-on-rails compatibility
+        } = ('image' in json)
+          ? json.image
+          : json.post;  // booru-on-rails compatibility
 
         return {hash, orig_hash};
       });
@@ -150,19 +150,19 @@ function searchByImage(imageUrl: string, host: BooruRecord['host']): Promise<num
           const attributes = {
             mime_type: (image.mime_type == sourceImage.mime_type) ? 1 : 0,
             aspect_ratio: 1 - Math.tanh(Math.abs(sourceImage.aspect_ratio - image.aspect_ratio)),
-          resolution: 1 - Math.tanh(
-            Math.abs(
-              (sourceImage.width * sourceImage.height) - (image.width * image.height)
-            ) * 1e-3
-          ),
-          tags: jaccardIndex(sourceImage.tags, image.tags),
-        };
-        const score = Object
-          .entries(weights)
-          .reduce((sum, arr) => {
-            const [attrName, weight] = arr;
-            const attrScore = attributes[attrName] * (weight / weightSum);
-            return sum + attrScore;
+            resolution: 1 - Math.tanh(
+              Math.abs(
+                (sourceImage.width * sourceImage.height) - (image.width * image.height)
+              ) * 1e-3
+            ),
+            tags: jaccardIndex(sourceImage.tags, image.tags),
+          };
+          const score = Object
+            .entries(weights)
+            .reduce((sum, arr) => {
+              const [attrName, weight] = arr;
+              const attrScore = attributes[attrName] * (weight / weightSum);
+              return sum + attrScore;
             }, 0);
 
           log({id: image.id, simScore: score, image, attributes});
@@ -198,7 +198,7 @@ function searchByApi(host: BooruRecord['host']): Promise<number> {
   log(url);
   return makeRequest(url)
     .then(resp => resp.response as Twibooru.Api.Search)
-    .then(json => (json.total > 0) ? json.search[0].id : null);
+    .then(json => (json.total > 0) ? json.posts[0].id : null);
 }
 
 export {searchByHash, searchByImage, searchByApi};
