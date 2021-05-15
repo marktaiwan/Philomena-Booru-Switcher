@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Booru Switcher
 // @description Switch between Philomena-based boorus
-// @version     1.4.2
+// @version     1.4.3
 // @author      Marker
 // @license     MIT
 // @namespace   https://github.com/marktaiwan/
@@ -200,7 +200,7 @@
       .then(makeRequest)
       .then(resp => resp.response)
       .then(json => {
-        const arr = json.images || json.search; // booru-on-rails compatibility
+        const arr = 'images' in json ? json.images : json.posts;
         log('Hash search results: ' + arr.length);
         return arr.length > 0 ? arr[0].id : null;
       });

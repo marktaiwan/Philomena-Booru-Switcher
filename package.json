@@ -1,7 +1,7 @@
 {
     "displayName": "Booru Switcher",
     "name": "booru-switcher",
-    "version": "1.4.2",
+    "version": "1.4.3",
     "description": "Switch between Philomena-based boorus",
     "private": true,
     "author": "Marker",

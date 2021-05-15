@@ -85,8 +85,8 @@ function searchByHash(host: BooruRecord['host'], hashFallback: boolean): Promise
     })
     .then(makeRequest)
     .then(resp => resp.response)
-    .then(json => {
-      const arr: Array<Philomena.Image.ImageObject | Twibooru.Image.ImageObject> = json.images || json.search;  // booru-on-rails compatibility
+    .then((json: Philomena.Api.Search | Twibooru.Api.Search) => {
+      const arr = 'images' in json ? json.images : json.posts;
 
       log('Hash search results: ' + arr.length);
       return (arr.length > 0) ? arr[0].id : null;
