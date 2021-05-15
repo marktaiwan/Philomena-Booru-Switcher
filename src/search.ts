@@ -77,7 +77,7 @@ function searchByHash(host: BooruRecord['host'], hashFallback: boolean): Promise
         filter_id: getFilterId(host),
       });
 
-      const searchApiEndPoint = (!isBor(host)) ? '/api/v1/json/search/images' : '/search.json';
+      const searchApiEndPoint = (!isBor(host)) ? '/api/v1/json/search/images' : '/api/v3/search/posts';
       const url = 'https://' + host + searchApiEndPoint + query;
 
       log('begin search by hash');
@@ -193,7 +193,7 @@ function searchByApi(host: BooruRecord['host']): Promise<number> {
     q: encodeSearch(`location:${site} && id_at_location:${sourceId}`),
     filter_id: getFilterId(host),
   });
-  const url = 'https://twibooru.org/search.json' + query;
+  const url = 'https://twibooru.org/api/v3/search/posts' + query;
   log('Searching Twibooru with API');
   log(url);
   return makeRequest(url)

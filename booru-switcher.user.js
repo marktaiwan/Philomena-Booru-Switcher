@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Booru Switcher
 // @description Switch between Philomena-based boorus
-// @version     1.4.1
+// @version     1.4.2
 // @author      Marker
 // @license     MIT
 // @namespace   https://github.com/marktaiwan/
@@ -190,7 +190,9 @@
           q: encodeSearch(searchItems.join(' || ')),
           filter_id: getFilterId(host),
         });
-        const searchApiEndPoint = !isBor(host) ? '/api/v1/json/search/images' : '/search.json';
+        const searchApiEndPoint = !isBor(host)
+          ? '/api/v1/json/search/images'
+          : '/api/v3/search/posts';
         const url = 'https://' + host + searchApiEndPoint + query;
         log('begin search by hash');
         return url;
@@ -292,7 +294,7 @@
       q: encodeSearch(`location:${site} && id_at_location:${sourceId}`),
       filter_id: getFilterId(host),
     });
-    const url = 'https://twibooru.org/search.json' + query;
+    const url = 'https://twibooru.org/api/v3/search/posts' + query;
     log('Searching Twibooru with API');
     log(url);
     return makeRequest(url)
