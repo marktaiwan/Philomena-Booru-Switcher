@@ -12,7 +12,7 @@ function createDropdown(text: string, title = ''): HTMLElement {
 <a class="header__link" href="#" data-click-preventdefault="true" title="${title}">
   <i class="${SCRIPT_ID}__icon fa fa-list-ul"></i>
   <span class="hide-limited-desktop hide-mobile">${text}</span>
-  <span data-click-preventdefault="true"><i class="fa fa-caret-down"></i></span>
+  <i class="fa fa-caret-down"></i>
 </a>
 <nav class="dropdown__content"></nav>`;
   headerRight.insertAdjacentElement('beforebegin', menuButton);
