@@ -24,7 +24,7 @@ function fetchImageHash(id: string, fallback: boolean): Promise<{hash: string, o
       });
   } else {
     log('get hash by download');
-    const imageTarget = $('#image_target');
+    const imageTarget = $('#image_target, .image-target');
     const imageContainer = imageTarget.closest('.image-show-container') as HTMLElement;
     const mimeType = imageTarget.dataset.mimeType || imageContainer.dataset.mimeType;
     const uris: ImageResponse.Representations = JSON.parse(imageTarget.dataset.uris);
@@ -122,7 +122,7 @@ function searchByImage(imageUrl: string, host: BooruRecord['host']): Promise<num
       };
 
       // get current image data
-      const imageTarget = $('#image_target');
+      const imageTarget = $('#image_target, .image-target');
       const container = imageTarget.closest('.image-show-container') as HTMLElement;
       const sourceImage: Pick<
         Philomena.Image.ImageObject,

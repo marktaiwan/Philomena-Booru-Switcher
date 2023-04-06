@@ -73,7 +73,7 @@ function initSearchUI(): void {
     const useFallbacks = e.ctrlKey;
     const name = anchor.dataset.name;
     const host = anchor.dataset.host;
-    const imageTarget = $('#image_target');
+    const imageTarget = $('#image_target, .image-target');
     const uris: ImageResponse.Representations = JSON.parse(imageTarget.dataset.uris);
     const fullImageURL = makeAbsolute(uris.full, window.location.origin);
 

@@ -2,7 +2,7 @@ import {initSwitcherUI, initSearchUI} from './ui';
 import {$} from './util';
 
 function main() {
-  if ($('#image_target') || $('#thumbnails-not-yet-generated')) {
+  if ($('#image_target, .image-target') || $('#thumbnails-not-yet-generated')) {
     initSearchUI();
   } else {
     // forum pages

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Booru Switcher
 // @description Switch between Philomena-based boorus
-// @version     1.4.4
+// @version     1.4.5
 // @author      Marker
 // @license     MIT
 // @namespace   https://github.com/marktaiwan/
@@ -145,7 +145,7 @@
         });
     } else {
       log('get hash by download');
-      const imageTarget = $('#image_target');
+      const imageTarget = $('#image_target, .image-target');
       const imageContainer = imageTarget.closest('.image-show-container');
       const mimeType = imageTarget.dataset.mimeType || imageContainer.dataset.mimeType;
       const uris = JSON.parse(imageTarget.dataset.uris);
@@ -231,7 +231,7 @@
           return intersect.length / (set1.length + set2.length - intersect.length);
         };
         // get current image data
-        const imageTarget = $('#image_target');
+        const imageTarget = $('#image_target, .image-target');
         const container = imageTarget.closest('.image-show-container');
         const sourceImage = {
           width: Number.parseInt(container.dataset.width, 10),
@@ -368,7 +368,7 @@
       const useFallbacks = e.ctrlKey;
       const name = anchor.dataset.name;
       const host = anchor.dataset.host;
-      const imageTarget = $('#image_target');
+      const imageTarget = $('#image_target, .image-target');
       const uris = JSON.parse(imageTarget.dataset.uris);
       const fullImageURL = makeAbsolute(uris.full, window.location.origin);
       try {
@@ -429,7 +429,7 @@
   }
 
   function main() {
-    if ($('#image_target') || $('#thumbnails-not-yet-generated')) {
+    if ($('#image_target, .image-target') || $('#thumbnails-not-yet-generated')) {
       initSearchUI();
     } else {
       // forum pages
