@@ -24,6 +24,7 @@
 // @grant       GM_xmlhttpRequest
 // @grant       unsafeWindow
 // ==/UserScript==
+
 (function () {
   'use strict';
 
@@ -31,7 +32,7 @@
   const boorus = [
     {name: 'Ponybooru', host: 'ponybooru.org', filterId: 1554},
     {name: 'Ponerpics', host: 'ponerpics.org', filterId: 2},
-    {name: 'Twibooru', host: 'twibooru.org', filterId: 2, bor: true},
+    {name: 'Twibooru', host: 'twibooru.org', filterId: 2, bor: true}, // runs on Booru-on-Rails
     {name: 'Derpibooru', host: 'derpibooru.org', filterId: 56027},
   ];
   window.booru_switcher = {};
@@ -46,28 +47,21 @@
   }
   /* Url */
   function makeAbsolute(path, domain) {
-    return path.match(/^(?:https?:)?\/\//) ? path : domain + path;
+    return /^(?:https?:)?\/\//.test(path)
+      ? path
+      : domain + (path.startsWith('/') ? path : '/' + path);
   }
   function getQueryVariableAll() {
-    const search = window.location.search;
-    if (search === '') return {};
-    const arr = search
-      .substring(1)
-      .split('&')
-      .map(string => string.split('='));
+    const params = new URLSearchParams(window.location.search);
     const dict = {};
-    for (const list of arr) {
-      dict[list[0]] = list[1];
+    for (const [key, val] of params.entries()) {
+      dict[key] = val;
     }
     return dict;
   }
   function makeQueryString(queries) {
-    return (
-      '?' +
-      Object.entries(queries)
-        .map(arr => arr.join('='))
-        .join('&')
-    );
+    const params = new URLSearchParams(queries);
+    return '?' + params.toString();
   }
 
   function encodeSearch(searchTerm) {

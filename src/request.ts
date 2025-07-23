@@ -16,7 +16,7 @@ function makeRequest(
   responseType: GM_Types.XHRDetails<unknown>['responseType'] = 'json',
   method: GM_Types.XHRDetails<unknown>['method'] = 'GET'
 ): Promise<GMResponseObject> {
-  return new Promise<GMResponseObject | GMResponseError>((resolve) => {
+  return new Promise<GMResponseObject | GMResponseError>(resolve => {
     GM_xmlhttpRequest({
       url: url,
       method,

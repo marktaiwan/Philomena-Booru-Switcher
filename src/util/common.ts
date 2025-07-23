@@ -1,10 +1,11 @@
 /* Shorthands  */
 
+type HTMLElementEvent<T extends HTMLElement = HTMLElement> = Event & {target: T};
 type SelectorRoot = Document | HTMLElement;
 
-function $<K extends keyof HTMLElementTagNameMap>(selector: K, root?: SelectorRoot): HTMLElementTagNameMap[K];
-function $<T extends HTMLElement>(selector: string, root?: SelectorRoot): T;
-function $(selector: string, root: SelectorRoot = document): HTMLElement {
+function $<K extends keyof HTMLElementTagNameMap>(selector: K, root?: SelectorRoot): HTMLElementTagNameMap[K] | null;
+function $<T extends HTMLElement>(selector: string, root?: SelectorRoot): T | null;
+function $(selector: string, root: SelectorRoot = document): HTMLElement | null {
   return root.querySelector(selector);
 }
 
@@ -23,43 +24,92 @@ function create(ele: string): HTMLElement {
 /* Url */
 
 function makeAbsolute(path: string, domain: string): string {
-  return path.match(/^(?:https?:)?\/\//) ? path : domain + path;
+  return (/^(?:https?:)?\/\//).test(path)
+    ? path
+    : domain + (path.startsWith('/') ? path : '/' + path);
 }
 
 type QueryVariableSet = {
   [key: string]: string,
 };
 function getQueryVariableAll(): QueryVariableSet {
-  const search = window.location.search;
-  if (search === '') return {};
-  const arr = search
-    .substring(1)
-    .split('&')
-    .map(string => string.split('='));
-  const dict = {};
-  for (const list of arr) {
-    dict[list[0]] = list[1];
+  const params = new URLSearchParams(window.location.search);
+  const dict: QueryVariableSet = {};
+  for (const [key, val] of params.entries()) {
+    dict[key] = val;
   }
   return dict;
 }
 
-function getQueryVariable(key: string): string {
-  return getQueryVariableAll()[key];
+function getQueryVariable(key: string): string | undefined {
+  const variables = getQueryVariableAll();
+  return Object.prototype.hasOwnProperty.call(variables, key)
+    ? variables[key]
+    : undefined;
 }
 
 function makeQueryString(queries: QueryVariableSet): string {
-  return '?' + Object
-    .entries(queries)
-    .map(arr => arr.join('='))
-    .join('&');
+  const params = new URLSearchParams(queries);
+  return '?' + params.toString();
+}
+
+function escapeRegExp(str: string): string {
+  return str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
+function debounce<T extends (...args: any[]) => ReturnType<T>>(
+  fn: T,
+  delay: number
+): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+  let timer: ReturnType<typeof setTimeout>;
+  let latestPromise: {resolve: (value: ReturnType<T>) => void} | null = null;
+
+  return (...args) => {
+    // Cancel the previous execution
+    clearTimeout(timer);
+
+    return new Promise<ReturnType<T>>(resolve => {
+      latestPromise = {resolve}; // Store the latest resolve function
+
+      timer = setTimeout(() => {
+        if (latestPromise) {
+          latestPromise.resolve(fn(...args)); // Only resolve the most recent call
+          latestPromise = null;
+        }
+      }, delay);
+    });
+  };
+}
+
+function removeFromArray<T>(array: T[], predicate: (ele: T, index: number, arr: T[]) => unknown, thisArg?: unknown): void {
+  const index = array.findIndex(predicate, thisArg);
+  if (index > -1) array.splice(index, 1);
+}
+
+function sleep(duration: number): Promise<void> {
+  return new Promise(resolve => window.setTimeout(resolve, duration));
+}
+
+function onLeftClick(callback: (event: MouseEvent) => void, root: SelectorRoot = document): void {
+  root.addEventListener('click', e => {
+    if (e instanceof MouseEvent && e.button === 0) callback(e);
+  });
 }
 
 export {
   $,
   $$,
   create,
-  makeAbsolute,
+  debounce,
+  escapeRegExp,
   getQueryVariable,
   getQueryVariableAll,
-  makeQueryString
+  makeAbsolute,
+  makeQueryString,
+  onLeftClick,
+  removeFromArray,
+  sleep,
+};
+export type {
+  HTMLElementEvent,
 };
